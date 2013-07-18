@@ -12,6 +12,8 @@
 
 <style type="text/css">
 
+.hidden { display: none; }
+
 /* overflow scrolling polyfill for all mobile devices */
 .overthrow-enabled .overthrow {
     overflow: auto;
@@ -26,7 +28,7 @@
 #poster-menu img {
 	width:200px;
 	height:300px;	
-	-webkit-transform: translate3d(0,0,0); /* fixes rendering bug */
+	-webkit-transform: translate3d(0,0,0); /* forces hardware acceleration to fix iOS rendering bug */
 }	
 
 #horizontal-scroller {
@@ -38,26 +40,34 @@
 	width:200px;
 }
 
+#email-error { color: red;}
+
 
 </style>
 
 <script type="text/javascript">
-	$(document).bind('pageinit', function(){
 
-		// hide the selected poster div until it's needed
+	//simple JS function to check for basic email address validity before submission
+	function emailTest(address){
+		var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(address);
+	}
+
+	$(document).bind('pageinit', function(){
+		$("#email-error").hide();
 		$("#poster-selection").hide();
 
 		// initialize selectedPoster variable
 		selectedPoster = "none";
 
-		// when a poster image is pressed
-		$(".poster-image").on("vclick", function(event){
-			
-			// hide other poster images
-			$(this).siblings().hide();
-			
+		// must be click event and not vclick for mobile keyboard to appear
+		$(".poster-image").on("click", function(event){
+
 			//resize the scroll area to 1 image width
 			$("#horizontal-scroller").addClass("poster-selected");
+
+			// hide other poster images
+			$(this).siblings().hide();
 
 			// sets selectedPoster variable to the alt text of the image (artist's name)
 			selectedPoster = $(this).attr("alt");
@@ -67,38 +77,53 @@
 
 			// put the name of the selected poster in the HTML and show the selected poster div
 			$("#selected-poster-designer").html(selectedPoster).button('refresh');
-			$("#poster-selection").fadeIn();
+			$("#poster-selection").show();
 
-			// scroll the window to 250px from top;
-			$.mobile.silentScroll(250);
+			// scroll to the bottom of the form to prompt user input
+			$.mobile.silentScroll(1000);
 
 		});
+
 
 		// when the Change poster button is pressed
 		$("button#change-poster").on("vclick", function(event){
 
-			// show all poster images again
-			$(".poster-image").show();
-
 			// resize horizontal scroll area to 27 poster widths
 			$("#horizontal-scroller").removeClass("poster-selected");
 
+			// show all poster images again
+			$(".poster-image").show();
+
 			// hide the poster selection div
 			$("#poster-selection").hide();
-
-			// scroll to top
-			$.mobile.silentScroll(50);
 
 			// reset the selectedPoster variable
 			selectedPoster = "none";
 
 			// reset form poster field
 			$("#poster-field").val(selectedPoster);
+
+			// un-focus the email field
+			$("#email-field").blur();
+		});
+
+		// email field validation on field exit
+		$("#email-field").change(function(){
+			if (emailTest($("#email-field").val())) {
+				$("#email-error").hide();
+			} else {
+				$("#email-error").show();
+			}
 		});
 
 		// form submission handling
-		$("button#change-poster").on("vclick", function(event){
-			// coming soon...
+		$("button#entry-submit").on("vclick", function(event){
+			if (emailTest($("#email-field").val())) {
+				// submit
+			} else {
+				$("#email-error").hide();
+			}
+
 		});
 	});
 </script>
@@ -153,20 +178,16 @@
 
 		<h2 data-inset="true">Step 2: Enter to win!</h2>
 		<form>
-			<label for="firstname-field">First Name</label>
-			<input type="text" id="firstname-field" data-inset="true"/>
-
-			<label for="firstname-field">Last Name</label>
-			<input type="text" id="lastname-field" data-inset="true"/>
 			
 			<label for="email-field">Email Address</label>
-			<input type="email" id="email-field" data-inset="true"/>
+			<input type="email" id="email-field" data-inset="true" placeholder="email@address.com"/>
+			<div id="email-error">Please enter a valid email address.</div>
 			
 			<input type="hidden" id="poster-field" value="none"/>
 			
 			<p>Sign up for our email newsletter and enter to win your chosen poster!</p> 
 
-			<button id="entry-submit" type="submit" data-inset="true" data-role="button">Submit</button>
+			<button id="entry-submit" data-inset="true" data-role="button">Submit</button>
 		</form>
 	</div>
 </div>
