@@ -32,8 +32,12 @@
 #horizontal-scroller {
 	height:310px;
 	width:5550px;
-	position:relative;
 }
+
+#horizontal-scroller.poster-selected {
+	width:200px;
+}
+
 
 </style>
 
@@ -53,10 +57,13 @@
 			$(this).siblings().hide();
 			
 			//resize the scroll area to 1 image width
-			$("#horizontal-scroller").width("200px");
+			$("#horizontal-scroller").addClass("poster-selected");
 
 			// sets selectedPoster variable to the alt text of the image (artist's name)
 			selectedPoster = $(this).attr("alt");
+
+			// set form field to selected poster
+			$("#poster-field").val(selectedPoster);
 
 			// put the name of the selected poster in the HTML and show the selected poster div
 			$("#selected-poster-designer").html(selectedPoster).button('refresh');
@@ -74,7 +81,7 @@
 			$(".poster-image").show();
 
 			// resize horizontal scroll area to 27 poster widths
-			$("#horizontal-scroller").width("5550px");
+			$("#horizontal-scroller").removeClass("poster-selected");
 
 			// hide the poster selection div
 			$("#poster-selection").hide();
@@ -84,6 +91,9 @@
 
 			// reset the selectedPoster variable
 			selectedPoster = "none";
+
+			// reset form poster field
+			$("#poster-field").val(selectedPoster);
 		});
 
 		// form submission handling
@@ -144,15 +154,15 @@
 		<h2 data-inset="true">Step 2: Enter to win!</h2>
 		<form>
 			<label for="firstname-field">First Name</label>
-			<input type="text" name="FirstName" id="firstname-field" data-inset="true"/>
+			<input type="text" id="firstname-field" data-inset="true"/>
 
 			<label for="firstname-field">Last Name</label>
-			<input type="text" name="LastName" id="lastname-field" data-inset="true"/>
+			<input type="text" id="lastname-field" data-inset="true"/>
 			
 			<label for="email-field">Email Address</label>
-			<input type="email" name="Email" id="email-field" data-inset="true"/>
+			<input type="email" id="email-field" data-inset="true"/>
 			
-			<input type="hidden" name="FavPoster" value="none"/>
+			<input type="hidden" id="poster-field" value="none"/>
 			
 			<p>Sign up for our email newsletter and enter to win your chosen poster!</p> 
 
